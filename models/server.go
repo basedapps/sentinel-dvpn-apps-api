@@ -44,6 +44,7 @@ type Server struct {
 	City   City `json:"-"`
 
 	Name             string                                  `gorm:"not null"`
+	IsBanned         bool                                    `gorm:"not null; default:false"`
 	IsActive         bool                                    `gorm:"not null"`
 	IsIncludedInPlan bool                                    `gorm:"not null; default:false"`
 	CurrentLoad      float64                                 `gorm:"not null"`

@@ -30,7 +30,7 @@ func (job UnlinkNodesFromPlanJob) Run() {
 	}
 
 	for _, server := range servers {
-		if server.Configuration.Data().PricePerHour > maxPricePerHour || !server.IsActive {
+		if server.Configuration.Data().PricePerHour > maxPricePerHour || !server.IsActive || server.IsBanned {
 			err := job.Sentinel.RemoveNodeFromPlan(server.Configuration.Data().Address)
 			if err != nil {
 				job.Logger.Error("failed to remove node from plan: " + err.Error())

@@ -87,6 +87,7 @@ func (job SyncWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode) {
 						CityID:           cityId,
 						Name:             status.Moniker,
 						IsActive:         true,
+						IsBanned:         false,
 						IsIncludedInPlan: job.checkIfIncludedInPlan(&node),
 						CurrentLoad:      currentLoad,
 						Protocols:        protocols,
