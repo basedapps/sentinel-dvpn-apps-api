@@ -547,7 +547,7 @@ func (s Sentinel) FetchAllocationsForSubscription(subscriptionID int64) (*Sentin
 	return &(*response.Result)[lastIndex], nil
 }
 
-func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mnemonic string) (*SentinelCredentials, error) {
+func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mnemonic string, walletAddress string) (*SentinelCredentials, error) {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
 		Result  *SentinelCredentials `json:"result"`
@@ -581,7 +581,7 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	}
 
 	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API during creation of credentials for node " + nodeAddress)
+		return nil, errors.New("status code " + res.Status + " returned from Sentinel API during creation of credentials for node " + nodeAddress + " using wallet " + walletAddress)
 	}
 
 	body, err := io.ReadAll(res.Body)
@@ -598,7 +598,7 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API during creation of credentials for node " + nodeAddress)
+		return nil, errors.New("success `false` returned from Sentinel API during creation of credentials for node " + nodeAddress + " using wallet " + walletAddress)
 	}
 
 	return response.Result, nil

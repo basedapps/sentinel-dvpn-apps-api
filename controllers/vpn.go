@@ -365,7 +365,7 @@ func (vc VPNController) createCredentials(device *models.Device, server *models.
 		}
 	}
 
-	credentials, err := vc.Sentinel.CreateCredentials(server.Configuration.Data().Address, *device.SubscriptionId, deviceMnemonic)
+	credentials, err := vc.Sentinel.CreateCredentials(server.Configuration.Data().Address, *device.SubscriptionId, deviceMnemonic, device.WalletAddress)
 	if err != nil {
 		reason := "failed to create sentinel credentials: " + err.Error()
 		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
