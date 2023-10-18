@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+type SentinelError struct {
+	Code    int64  `json:"code"`
+	Message string `json:"message"`
+}
+
 type SentinelNodePrice struct {
 	Amount string `json:"amount"`
 	Denom  string `json:"denom"`

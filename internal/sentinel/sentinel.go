@@ -33,6 +33,7 @@ type Sentinel struct {
 func (s Sentinel) FetchNodes(offset int, limit int) (*[]SentinelNode, error) {
 	type blockchainResponse struct {
 		Success bool            `json:"success"`
+		Error   *SentinelError  `json:"error"`
 		Result  *[]SentinelNode `json:"result"`
 	}
 
@@ -53,10 +54,6 @@ func (s Sentinel) FetchNodes(offset int, limit int) (*[]SentinelNode, error) {
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API when fetching nodes")
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -70,7 +67,12 @@ func (s Sentinel) FetchNodes(offset int, limit int) (*[]SentinelNode, error) {
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API when fetching nodes")
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API when fetching nodes" + apiError)
 	}
 
 	return response.Result, nil
@@ -79,6 +81,7 @@ func (s Sentinel) FetchNodes(offset int, limit int) (*[]SentinelNode, error) {
 func (s Sentinel) FetchNodeStatus(node SentinelNode) (*SentinelNodeStatus, error) {
 	type nodeResponse struct {
 		Success bool                `json:"success"`
+		Error   *SentinelError      `json:"error"`
 		Result  *SentinelNodeStatus `json:"result"`
 	}
 
@@ -112,7 +115,12 @@ func (s Sentinel) FetchNodeStatus(node SentinelNode) (*SentinelNodeStatus, error
 	}
 
 	if response.Success == false {
-		return nil, errors.New("failed to retrieve Sentinel node status for (got success false)")
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel dVPN node when fetching status" + apiError)
 	}
 
 	return response.Result, nil
@@ -121,6 +129,7 @@ func (s Sentinel) FetchNodeStatus(node SentinelNode) (*SentinelNodeStatus, error
 func (s Sentinel) FetchBalance(walletAddress string) (int64, error) {
 	type blockchainResponse struct {
 		Success bool               `json:"success"`
+		Error   *SentinelError     `json:"error"`
 		Result  *[]SentinelBalance `json:"result"`
 	}
 
@@ -138,10 +147,6 @@ func (s Sentinel) FetchBalance(walletAddress string) (int64, error) {
 		return 0, err
 	}
 
-	if res.StatusCode != 200 {
-		return 0, errors.New("status code " + res.Status + " returned from Sentinel API when fetching balance for wallet " + walletAddress)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return 0, err
@@ -156,7 +161,12 @@ func (s Sentinel) FetchBalance(walletAddress string) (int64, error) {
 	}
 
 	if response.Success == false {
-		return 0, errors.New("success `false` returned from Sentinel API when fetching balance for wallet " + walletAddress)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return 0, errors.New("success `false` returned from Sentinel API when fetching balance for wallet " + walletAddress + apiError)
 	}
 
 	var walletBalance int64
@@ -172,6 +182,7 @@ func (s Sentinel) FetchBalance(walletAddress string) (int64, error) {
 func (s Sentinel) GrantTokens(walletAddresses []string, amount int64) error {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
 		Result  *SentinelTransaction `json:"result"`
 	}
 
@@ -211,10 +222,6 @@ func (s Sentinel) GrantTokens(walletAddresses []string, amount int64) error {
 		return err
 	}
 
-	if res.StatusCode != 200 {
-		return errors.New("status code " + res.Status + " returned from Sentinel API when topping up wallets")
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
@@ -229,7 +236,12 @@ func (s Sentinel) GrantTokens(walletAddresses []string, amount int64) error {
 	}
 
 	if response.Success == false {
-		return errors.New("success `false` returned from Sentinel API when topping up wallets")
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return errors.New("success `false` returned from Sentinel API when topping up wallets" + apiError)
 	}
 
 	return nil
@@ -238,6 +250,7 @@ func (s Sentinel) GrantTokens(walletAddresses []string, amount int64) error {
 func (s Sentinel) FetchSessions(walletAddress string, offset int, limit int) (*[]SentinelSession, error) {
 	type blockchainResponse struct {
 		Success bool               `json:"success"`
+		Error   *SentinelError     `json:"error"`
 		Result  *[]SentinelSession `json:"result"`
 	}
 
@@ -257,10 +270,6 @@ func (s Sentinel) FetchSessions(walletAddress string, offset int, limit int) (*[
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API when fetching sessions for wallet " + walletAddress)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -275,7 +284,12 @@ func (s Sentinel) FetchSessions(walletAddress string, offset int, limit int) (*[
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API when fetching sessions for wallet " + walletAddress)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API when fetching sessions for wallet " + walletAddress + apiError)
 	}
 
 	return response.Result, nil
@@ -284,6 +298,7 @@ func (s Sentinel) FetchSessions(walletAddress string, offset int, limit int) (*[
 func (s Sentinel) FetchSubscriptions(walletAddress string, offset int, limit int) (*[]SentinelSubscription, error) {
 	type blockchainResponse struct {
 		Success bool                    `json:"success"`
+		Error   *SentinelError          `json:"error"`
 		Result  *[]SentinelSubscription `json:"result"`
 	}
 
@@ -303,10 +318,6 @@ func (s Sentinel) FetchSubscriptions(walletAddress string, offset int, limit int
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API when fetching subscriptions for wallet " + walletAddress)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -321,7 +332,12 @@ func (s Sentinel) FetchSubscriptions(walletAddress string, offset int, limit int
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API when fetching subscriptions for wallet " + walletAddress)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API when fetching subscriptions for wallet " + walletAddress + apiError)
 	}
 
 	return response.Result, nil
@@ -366,6 +382,7 @@ func (s Sentinel) FindSubscriptionForNode(walletAddress string, nodeAddress stri
 func (s Sentinel) FindSubscriptionByID(subscriptionID int64) (*SentinelSubscription, error) {
 	type blockchainResponse struct {
 		Success bool                  `json:"success"`
+		Error   *SentinelError        `json:"error"`
 		Result  *SentinelSubscription `json:"result"`
 	}
 
@@ -383,10 +400,6 @@ func (s Sentinel) FindSubscriptionByID(subscriptionID int64) (*SentinelSubscript
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API when fetching subscription with ID" + strconv.FormatInt(subscriptionID, 10))
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -401,7 +414,12 @@ func (s Sentinel) FindSubscriptionByID(subscriptionID int64) (*SentinelSubscript
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API when fetching subscription with ID" + strconv.FormatInt(subscriptionID, 10))
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API when fetching subscription with ID" + strconv.FormatInt(subscriptionID, 10) + apiError)
 	}
 
 	return response.Result, nil
@@ -410,6 +428,7 @@ func (s Sentinel) FindSubscriptionByID(subscriptionID int64) (*SentinelSubscript
 func (s Sentinel) CreateNodeSubscription(walletAddress string, mnemonic string, nodeAddress string, gigabytes int64, hours int64) (*SentinelSubscription, error) {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
 		Result  *SentinelTransaction `json:"result"`
 	}
 
@@ -447,10 +466,6 @@ func (s Sentinel) CreateNodeSubscription(walletAddress string, mnemonic string, 
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API during creation of subscription for wallet " + walletAddress)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -465,7 +480,12 @@ func (s Sentinel) CreateNodeSubscription(walletAddress string, mnemonic string, 
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned  from Sentinel API during creation of subscription for wallet " + walletAddress)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned  from Sentinel API during creation of subscription for wallet " + walletAddress + apiError)
 	}
 
 	for _, event := range response.Result.Events {
@@ -501,6 +521,7 @@ func (s Sentinel) CreateNodeSubscription(walletAddress string, mnemonic string, 
 func (s Sentinel) FetchAllocationsForSubscription(subscriptionID int64) (*SentinelAllocation, error) {
 	type blockchainResponse struct {
 		Success bool                  `json:"success"`
+		Error   *SentinelError        `json:"error"`
 		Result  *[]SentinelAllocation `json:"result"`
 	}
 
@@ -518,10 +539,6 @@ func (s Sentinel) FetchAllocationsForSubscription(subscriptionID int64) (*Sentin
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API when fetching allocation for subscription with ID " + strconv.FormatInt(subscriptionID, 10))
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -536,7 +553,12 @@ func (s Sentinel) FetchAllocationsForSubscription(subscriptionID int64) (*Sentin
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API when fetching allocation for subscription with ID " + strconv.FormatInt(subscriptionID, 10))
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API when fetching allocation for subscription with ID " + strconv.FormatInt(subscriptionID, 10) + apiError)
 	}
 
 	if response.Result == nil {
@@ -550,6 +572,7 @@ func (s Sentinel) FetchAllocationsForSubscription(subscriptionID int64) (*Sentin
 func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mnemonic string, walletAddress string) (*SentinelCredentials, error) {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
 		Result  *SentinelCredentials `json:"result"`
 	}
 
@@ -580,10 +603,6 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API during creation of credentials for node " + nodeAddress + " using wallet " + walletAddress)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -598,7 +617,12 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API during creation of credentials for node " + nodeAddress + " using wallet " + walletAddress)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API during creation of credentials for node " + nodeAddress + " using wallet " + walletAddress + apiError)
 	}
 
 	return response.Result, nil
@@ -631,11 +655,10 @@ func (s Sentinel) ProxyManualCredentialsRequest(remoteURL string, walletAddress 
 	return body, nil
 }
 
-/// New methods
-
 func (s Sentinel) FetchPlanNodes(limit int, offset int) (*[]SentinelNode, error) {
 	type blockchainResponse struct {
 		Success bool            `json:"success"`
+		Error   *SentinelError  `json:"error"`
 		Result  *[]SentinelNode `json:"result"`
 	}
 
@@ -655,10 +678,6 @@ func (s Sentinel) FetchPlanNodes(limit int, offset int) (*[]SentinelNode, error)
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API when fetching nodes for plan")
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -672,7 +691,12 @@ func (s Sentinel) FetchPlanNodes(limit int, offset int) (*[]SentinelNode, error)
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned from Sentinel API when fetching nodes for plan")
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API when fetching nodes for plan" + apiError)
 	}
 
 	return response.Result, nil
@@ -681,6 +705,7 @@ func (s Sentinel) FetchPlanNodes(limit int, offset int) (*[]SentinelNode, error)
 func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
 		Result  *SentinelTransaction `json:"result"`
 	}
 
@@ -714,10 +739,6 @@ func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 		return err
 	}
 
-	if res.StatusCode != 200 {
-		return errors.New("status code " + res.Status + " returned from Sentinel API while adding nodes to plan " + s.ProviderPlanID)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
@@ -732,7 +753,12 @@ func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 	}
 
 	if response.Success == false {
-		return errors.New("success `false` returned from Sentinel API while adding nodes to plan " + s.ProviderPlanID)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return errors.New("success `false` returned from Sentinel API while adding nodes to plan " + s.ProviderPlanID + apiError)
 	}
 
 	return nil
@@ -741,6 +767,7 @@ func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
 		Result  *SentinelTransaction `json:"result"`
 	}
 
@@ -772,10 +799,6 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 		return err
 	}
 
-	if res.StatusCode != 200 {
-		return errors.New("status code " + res.Status + " returned from Sentinel API while removing node  " + nodeAddress + " from plan " + s.ProviderPlanID)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
@@ -790,7 +813,12 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 	}
 
 	if response.Success == false {
-		return errors.New("success `false` returned from Sentinel API while removing node  " + nodeAddress + " from plan " + s.ProviderPlanID)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return errors.New("success `false` returned from Sentinel API while removing node  " + nodeAddress + " from plan " + s.ProviderPlanID + apiError)
 	}
 
 	return nil
@@ -799,6 +827,7 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscriptionID int64) error {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
 		Result  *SentinelTransaction `json:"result"`
 	}
 
@@ -839,10 +868,6 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 		return err
 	}
 
-	if res.StatusCode != 200 {
-		return errors.New("status code " + res.Status + " returned from Sentinel API while adding wallets to subscription")
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
@@ -857,7 +882,12 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 	}
 
 	if response.Success == false {
-		return errors.New("success `false` returned from Sentinel API while adding wallets to subscription")
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return errors.New("success `false` returned from Sentinel API while adding wallets to subscription" + apiError)
 	}
 
 	return nil
@@ -866,6 +896,7 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	type blockchainResponse struct {
 		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
 		Result  *SentinelTransaction `json:"result"`
 	}
 
@@ -899,10 +930,6 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code " + res.Status + " returned from Sentinel API during creation of subscription for plan " + s.ProviderPlanID)
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -917,7 +944,12 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	}
 
 	if response.Success == false {
-		return nil, errors.New("success `false` returned  from Sentinel API during creation of subscription for plan " + s.ProviderPlanID)
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned  from Sentinel API during creation of subscription for plan " + s.ProviderPlanID + apiError)
 	}
 
 	for _, event := range response.Result.Events {
