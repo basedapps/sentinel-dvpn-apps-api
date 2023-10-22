@@ -319,8 +319,8 @@ func (vc VPNController) ConnectToServer(c *gin.Context) {
 func (vc VPNController) createCredentials(device *models.Device, server *models.Server, c *gin.Context) {
 	deviceMnemonic, _ := bip39.NewMnemonic(device.WalletEntropy)
 
-	if device.SubscriptionId == nil || device.CurrentBalance <= 0 {
-		reason := "wallet is not yet enrolled"
+	if device.SubscriptionId == nil || device.IsFeeGranted == false {
+		reason := "wallet " + device.WalletAddress + " is not yet enrolled"
 		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
 		vc.Logger.Error(reason)
 		return
@@ -339,7 +339,7 @@ func (vc VPNController) createCredentials(device *models.Device, server *models.
 					return
 				}
 
-				s, err := vc.Sentinel.CreateNodeSubscription(vc.Sentinel.ProviderWalletAddress, vc.Sentinel.ProviderMnemonic, server.Configuration.Data().Address, 0, hours)
+				s, err := vc.Sentinel.CreateNodeSubscription(server.Configuration.Data().Address, 0, hours)
 				if err != nil {
 					reason := "failed to create sentinel node subscription: " + err.Error()
 					middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
@@ -373,23 +373,6 @@ func (vc VPNController) createCredentials(device *models.Device, server *models.
 	credentials, err := vc.Sentinel.CreateCredentials(server.Configuration.Data().Address, *device.SubscriptionId, deviceMnemonic, device.WalletAddress)
 	if err != nil {
 		reason := "failed to create sentinel credentials: " + err.Error()
-		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
-		vc.Logger.Error(reason)
-		return
-	}
-
-	balance, err := vc.Sentinel.FetchBalance(device.WalletAddress)
-	if err != nil {
-		reason := "failed to fetch sentinel wallet balance: " + err.Error()
-		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
-		vc.Logger.Error(reason)
-		return
-	}
-
-	device.CurrentBalance = balance
-	tx = vc.DB.Save(&device)
-	if tx.Error != nil {
-		reason := "failed to update device: " + tx.Error.Error()
 		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
 		vc.Logger.Error(reason)
 		return

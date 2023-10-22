@@ -23,10 +23,11 @@ type Device struct {
 
 	IsBanned bool `gorm:"not null; default:false"`
 
-	WalletAddress  string `gorm:"not null; unique"`
-	WalletEntropy  []byte `gorm:"not null; unique"`
+	WalletAddress string `gorm:"not null; unique"`
+	WalletEntropy []byte `gorm:"not null; unique"`
+
 	SubscriptionId *int64
-	CurrentBalance int64 `gorm:"not null; default:-1"`
+	IsFeeGranted   bool `gorm:"not null; default:false"`
 }
 
 func (d Device) MarshalJSON() ([]byte, error) {

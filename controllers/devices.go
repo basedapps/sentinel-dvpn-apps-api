@@ -65,11 +65,11 @@ func (dc DevicesController) CreateDevice(c *gin.Context) {
 	}
 
 	device := models.Device{
-		Platform:       payload.Platform,
-		Token:          generateDeviceToken(128),
-		WalletAddress:  walletAddress,
-		WalletEntropy:  entropy,
-		CurrentBalance: 0,
+		Platform:      payload.Platform,
+		Token:         generateDeviceToken(128),
+		WalletAddress: walletAddress,
+		WalletEntropy: entropy,
+		IsFeeGranted:  false,
 	}
 
 	tx := dc.DB.Create(&device)

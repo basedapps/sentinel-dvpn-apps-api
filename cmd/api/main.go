@@ -56,16 +56,28 @@ func main() {
 	}
 
 	sentinel := &sentinelAPI.Sentinel{
-		APIEndpoint:                 os.Getenv("SENTINEL_API_ENDPOINT"),
-		RPCEndpoint:                 os.Getenv("SENTINEL_RPC_ENDPOINT"),
-		ProviderWalletAddress:       os.Getenv("SENTINEL_PROVIDER_WALLET_ADDRESS"),
-		ProviderMnemonic:            os.Getenv("SENTINEL_PROVIDER_WALLET_MNEMONIC"),
-		ProviderPlanID:              os.Getenv("SENTINEL_PROVIDER_PLAN_ID"),
-		MainSubscriberWalletAddress: os.Getenv("SENTINEL_MAIN_SUBSCRIBER_WALLET_ADDRESS"),
-		MainSubscriberMnemonic:      os.Getenv("SENTINEL_MAIN_SUBSCRIBER_WALLET_MNEMONIC"),
-		DefaultDenom:                os.Getenv("SENTINEL_DEFAULT_DENOM"),
-		ChainID:                     os.Getenv("SENTINEL_CHAIN_ID"),
-		GasPrice:                    os.Getenv("SENTINEL_GAS_PRICE"),
+		APIEndpoint:                      os.Getenv("SENTINEL_API_ENDPOINT"),
+		RPCEndpoint:                      os.Getenv("SENTINEL_RPC_ENDPOINT"),
+		ProviderPlanID:                   os.Getenv("SENTINEL_PROVIDER_PLAN_ID"),
+		ProviderWalletAddress:            os.Getenv("SENTINEL_PROVIDER_WALLET_ADDRESS"),
+		ProviderMnemonic:                 os.Getenv("SENTINEL_PROVIDER_WALLET_MNEMONIC"),
+		NodeSubscriberWalletAddress:      os.Getenv("SENTINEL_NODE_SUBSCRIBER_WALLET_ADDRESS"),
+		NodeSubscriberMnemonic:           os.Getenv("SENTINEL_NODE_SUBSCRIBER_WALLET_MNEMONIC"),
+		NodeLinkerWalletAddress:          os.Getenv("SENTINEL_NODE_LINKER_WALLET_ADDRESS"),
+		NodeLinkerMnemonic:               os.Getenv("SENTINEL_NODE_LINKER_WALLET_MNEMONIC"),
+		NodeRemoverWalletAddress:         os.Getenv("SENTINEL_NODE_REMOVER_WALLET_ADDRESS"),
+		NodeRemoverMnemonic:              os.Getenv("SENTINEL_NODE_REMOVER_WALLET_MNEMONIC"),
+		FeeGranterWalletAddress:          os.Getenv("SENTINEL_FEE_GRANTER_WALLET_ADDRESS"),
+		FeeGranterMnemonic:               os.Getenv("SENTINEL_FEE_GRANTER_WALLET_MNEMONIC"),
+		MainSubscriberWalletAddress:      os.Getenv("SENTINEL_MAIN_SUBSCRIBER_WALLET_ADDRESS"),
+		MainSubscriberMnemonic:           os.Getenv("SENTINEL_MAIN_SUBSCRIBER_WALLET_MNEMONIC"),
+		SubscriptionUpdaterWalletAddress: os.Getenv("SENTINEL_SUBSCRIPTION_UPDATER_WALLET_ADDRESS"),
+		SubscriptionUpdaterMnemonic:      os.Getenv("SENTINEL_SUBSCRIPTION_UPDATER_WALLET_MNEMONIC"),
+		WalletEnrollerWalletAddress:      os.Getenv("SENTINEL_WALLET_ENROLLER_WALLET_ADDRESS"),
+		WalletEnrollerMnemonic:           os.Getenv("SENTINEL_WALLET_ENROLLER_WALLET_MNEMONIC"),
+		DefaultDenom:                     os.Getenv("SENTINEL_DEFAULT_DENOM"),
+		ChainID:                          os.Getenv("SENTINEL_CHAIN_ID"),
+		GasPrice:                         os.Getenv("SENTINEL_GAS_PRICE"),
 	}
 
 	router := routers.Router{
@@ -95,7 +107,7 @@ func main() {
 			Sentinel: sentinel,
 		}
 
-		topUpWalletsJob := jobs.TopUpWalletsJob{
+		grantFeeToWalletsJob := jobs.GrantFeeToWalletsJob{
 			DB:       db,
 			Logger:   logger,
 			Sentinel: sentinel,
@@ -129,7 +141,7 @@ func main() {
 		walletsScheduler := gocron.NewScheduler(time.UTC)
 		walletsScheduler.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
 		walletsScheduler.Every(5).Seconds().Do(func() {
-			topUpWalletsJob.Run()
+			grantFeeToWalletsJob.Run()
 		})
 		walletsScheduler.Every(10).Seconds().Do(func() {
 			enrollWalletJob.Run()
