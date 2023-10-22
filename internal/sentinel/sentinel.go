@@ -406,7 +406,7 @@ func (s Sentinel) CreateNodeSubscription(nodeAddress string, gigabytes int64, ho
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
@@ -545,7 +545,7 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
@@ -685,7 +685,7 @@ func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
@@ -749,7 +749,7 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
@@ -815,7 +815,7 @@ func (s Sentinel) GrantFeeToWallet(walletAddresses []string) error {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
@@ -886,7 +886,7 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
@@ -952,7 +952,7 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
