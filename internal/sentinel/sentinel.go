@@ -1030,5 +1030,5 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 		}
 	}
 
-	return nil, errors.New("No subscription ID found in events returned from Sentinel API during creation of subscription for plan " + s.ProviderPlanID)
+	return nil, errors.New("No subscription ID found in events returned from Sentinel API during creation of subscription for plan " + s.ProviderPlanID + " (response: " + string(body) + ")")
 }
