@@ -411,7 +411,7 @@ func (s Sentinel) CreateNodeSubscription(nodeAddress string, gigabytes int64, ho
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
-		s.GasBase,
+		s.GasBase*2,
 	)
 
 	url := s.APIEndpoint + "/api/v1/nodes/" + nodeAddress + "/subscriptions" + args
@@ -551,7 +551,7 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
-		s.GasBase,
+		s.GasBase*2,
 	)
 
 	url := s.APIEndpoint + "/api/v1/nodes/" + nodeAddress + "/sessions/" + strconv.FormatInt(subscriptionID, 10) + "/keys" + args
@@ -759,7 +759,7 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
-		s.GasBase,
+		s.GasBase*2,
 	)
 
 	url := s.APIEndpoint + "/api/v1/plans/" + s.ProviderPlanID + "/nodes/" + nodeAddress + args
@@ -969,7 +969,7 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
-		s.GasBase,
+		s.GasBase*2,
 	)
 
 	url := s.APIEndpoint + "/api/v1/plans/" + s.ProviderPlanID + "/subscriptions" + args
