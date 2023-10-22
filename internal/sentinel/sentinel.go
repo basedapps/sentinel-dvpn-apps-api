@@ -47,6 +47,7 @@ type Sentinel struct {
 	DefaultDenom string
 	ChainID      string
 	GasPrice     string
+	GasBase      int64
 }
 
 func (s Sentinel) FetchNodes(offset int, limit int) (*[]SentinelNode, error) {
@@ -406,10 +407,11 @@ func (s Sentinel) CreateNodeSubscription(nodeAddress string, gigabytes int64, ho
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
+		s.GasBase,
 	)
 
 	url := s.APIEndpoint + "/api/v1/nodes/" + nodeAddress + "/subscriptions" + args
@@ -545,10 +547,11 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
+		s.GasBase,
 	)
 
 	url := s.APIEndpoint + "/api/v1/nodes/" + nodeAddress + "/sessions/" + strconv.FormatInt(subscriptionID, 10) + "/keys" + args
@@ -684,11 +687,14 @@ func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 		return err
 	}
 
+	gas := s.GasBase * int64(len(nodeAddresses)+1)
+
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
+		gas,
 	)
 
 	url := s.APIEndpoint + "/api/v1/plans/" + s.ProviderPlanID + "/nodes" + args
@@ -749,10 +755,11 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
+		s.GasBase,
 	)
 
 	url := s.APIEndpoint + "/api/v1/plans/" + s.ProviderPlanID + "/nodes/" + nodeAddress + args
@@ -814,11 +821,14 @@ func (s Sentinel) GrantFeeToWallet(walletAddresses []string) error {
 		return err
 	}
 
+	gas := s.GasBase * int64(len(walletAddresses)+1)
+
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
+		gas,
 	)
 
 	url := s.APIEndpoint + "/api/v1/feegrants" + args
@@ -885,11 +895,14 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 		return err
 	}
 
+	gas := s.GasBase * int64(len(walletAddresses)+1)
+
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
+		gas,
 	)
 
 	url := s.APIEndpoint + "/api/v1/subscriptions/" + strconv.FormatInt(subscriptionID, 10) + "/allocations" + args
@@ -952,10 +965,11 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&simulate_and_execute=false",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
+		s.GasBase,
 	)
 
 	url := s.APIEndpoint + "/api/v1/plans/" + s.ProviderPlanID + "/subscriptions" + args

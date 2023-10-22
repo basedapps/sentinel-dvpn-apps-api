@@ -12,6 +12,7 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -55,6 +56,11 @@ func main() {
 		Logger: logger.With("middleware", "auth"),
 	}
 
+	gasBase, err := strconv.ParseInt(os.Getenv("SENTINEL_GAS_BASE"), 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
 	sentinel := &sentinelAPI.Sentinel{
 		APIEndpoint:                      os.Getenv("SENTINEL_API_ENDPOINT"),
 		RPCEndpoint:                      os.Getenv("SENTINEL_RPC_ENDPOINT"),
@@ -78,6 +84,7 @@ func main() {
 		DefaultDenom:                     os.Getenv("SENTINEL_DEFAULT_DENOM"),
 		ChainID:                          os.Getenv("SENTINEL_CHAIN_ID"),
 		GasPrice:                         os.Getenv("SENTINEL_GAS_PRICE"),
+		GasBase:                          gasBase,
 	}
 
 	router := routers.Router{
