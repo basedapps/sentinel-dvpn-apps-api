@@ -15,7 +15,7 @@ type GrantFeeToWalletsJob struct {
 
 func (job GrantFeeToWalletsJob) Run() {
 	var devices []models.Device
-	tx := job.DB.Model(&models.Device{}).Order("created_at").Limit(100).Find(&devices, "is_fee_granted = ?", false)
+	tx := job.DB.Model(&models.Device{}).Order("created_at").Limit(10).Find(&devices, "is_fee_granted = ?", false)
 	if tx.Error != nil {
 		job.Logger.Error("failed to get sentinel wallets from the DB: " + tx.Error.Error())
 		return

@@ -17,7 +17,7 @@ type UnlinkNodesFromPlanJob struct {
 
 func (job UnlinkNodesFromPlanJob) Run() {
 	var servers []models.Server
-	tx := job.DB.Model(&models.Server{}).Order("created_at").Find(&servers, "is_included_in_plan = ?", true)
+	tx := job.DB.Model(&models.Server{}).Order("created_at").Limit(10).Find(&servers, "is_included_in_plan = ?", true)
 	if tx.Error != nil {
 		job.Logger.Error("failed to get sentinel servers from the DB: " + tx.Error.Error())
 		return

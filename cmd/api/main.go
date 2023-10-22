@@ -147,20 +147,20 @@ func main() {
 
 		walletsScheduler := gocron.NewScheduler(time.UTC)
 		walletsScheduler.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-		walletsScheduler.Every(5).Seconds().Do(func() {
+		walletsScheduler.Every(1).Seconds().Do(func() {
 			grantFeeToWalletsJob.Run()
 		})
-		walletsScheduler.Every(10).Seconds().Do(func() {
+		walletsScheduler.Every(1).Seconds().Do(func() {
 			enrollWalletJob.Run()
 		})
 		walletsScheduler.StartAsync()
 
 		planScheduler := gocron.NewScheduler(time.UTC)
 		planScheduler.SetMaxConcurrentJobs(1, gocron.WaitMode)
-		planScheduler.Every(10).Minute().Do(func() {
+		planScheduler.Every(5).Seconds().Do(func() {
 			linkNodesWithPlanJob.Run()
 		})
-		planScheduler.Every(20).Minute().Do(func() {
+		planScheduler.Every(5).Seconds().Do(func() {
 			unlinkNodesFromPlanJob.Run()
 		})
 		planScheduler.StartAsync()
