@@ -472,7 +472,7 @@ func (s Sentinel) CreateNodeSubscription(nodeAddress string, gigabytes int64, ho
 		}
 	}
 
-	return nil, errors.New("No subscription ID found in events returned from Sentinel API during creation of subscription for node " + nodeAddress)
+	return nil, errors.New("No subscription ID found in events returned from Sentinel API during creation of subscription for node " + nodeAddress + " (response: " + string(body) + ")")
 }
 
 func (s Sentinel) FetchAllocationsForSubscription(subscriptionID int64) (*SentinelAllocation, error) {
