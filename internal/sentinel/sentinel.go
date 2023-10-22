@@ -384,17 +384,21 @@ func (s Sentinel) CreateNodeSubscription(nodeAddress string, gigabytes int64, ho
 	}
 
 	type blockchainRequest struct {
-		Mnemonic  string `json:"mnemonic"`
-		Denom     string `json:"denom"`
-		Gigabytes int64  `json:"gigabytes,omitempty"`
-		Hours     int64  `json:"hours,omitempty"`
+		AuthzGranter string `json:"authz_granter"`
+		FeeGranter   string `json:"fee_granter"`
+		Mnemonic     string `json:"mnemonic"`
+		Denom        string `json:"denom"`
+		Gigabytes    int64  `json:"gigabytes,omitempty"`
+		Hours        int64  `json:"hours,omitempty"`
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
-		Mnemonic:  s.NodeSubscriberMnemonic,
-		Denom:     s.DefaultDenom,
-		Gigabytes: gigabytes,
-		Hours:     hours,
+		AuthzGranter: s.ProviderWalletAddress,
+		FeeGranter:   s.ProviderWalletAddress,
+		Mnemonic:     s.NodeSubscriberMnemonic,
+		Denom:        s.DefaultDenom,
+		Gigabytes:    gigabytes,
+		Hours:        hours,
 	})
 
 	if err != nil {
@@ -402,10 +406,8 @@ func (s Sentinel) CreateNodeSubscription(nodeAddress string, gigabytes int64, ho
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&authz_granter=%s&fee_granter=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
 		s.RPCEndpoint,
-		s.ProviderWalletAddress,
-		s.ProviderWalletAddress,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
 	)
@@ -530,18 +532,20 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	}
 
 	type blockchainRequest struct {
-		Mnemonic string `json:"mnemonic"`
+		FeeGranter string `json:"fee_granter"`
+		Mnemonic   string `json:"mnemonic"`
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
-		Mnemonic: mnemonic,
+		FeeGranter: s.ProviderWalletAddress,
+		Mnemonic:   mnemonic,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&fee_granter=&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
@@ -663,13 +667,17 @@ func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 	}
 
 	type blockchainRequest struct {
-		Mnemonic    string   `json:"mnemonic"`
-		NodeAddress []string `json:"node_addresses"`
+		AuthzGranter string   `json:"authz_granter"`
+		FeeGranter   string   `json:"fee_granter"`
+		Mnemonic     string   `json:"mnemonic"`
+		NodeAddress  []string `json:"node_addresses"`
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
-		Mnemonic:    s.NodeLinkerMnemonic,
-		NodeAddress: nodeAddresses,
+		AuthzGranter: s.ProviderWalletAddress,
+		FeeGranter:   s.ProviderWalletAddress,
+		Mnemonic:     s.NodeLinkerMnemonic,
+		NodeAddress:  nodeAddresses,
 	})
 
 	if err != nil {
@@ -677,10 +685,8 @@ func (s Sentinel) AddNodeToPlan(nodeAddresses []string) error {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&authz_granter=%s&fee_granter=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
 		s.RPCEndpoint,
-		s.ProviderWalletAddress,
-		s.ProviderWalletAddress,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
 	)
@@ -727,11 +733,15 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 	}
 
 	type blockchainRequest struct {
-		Mnemonic string `json:"mnemonic"`
+		AuthzGranter string `json:"authz_granter"`
+		FeeGranter   string `json:"fee_granter"`
+		Mnemonic     string `json:"mnemonic"`
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
-		Mnemonic: s.NodeRemoverMnemonic,
+		AuthzGranter: s.ProviderWalletAddress,
+		FeeGranter:   s.ProviderWalletAddress,
+		Mnemonic:     s.NodeRemoverMnemonic,
 	})
 
 	if err != nil {
@@ -739,10 +749,8 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&authz_granter=%s&fee_granter=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
 		s.RPCEndpoint,
-		s.ProviderWalletAddress,
-		s.ProviderWalletAddress,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
 	)
@@ -789,11 +797,15 @@ func (s Sentinel) GrantFeeToWallet(walletAddresses []string) error {
 	}
 
 	type blockchainRequest struct {
+		AuthzGranter string   `json:"authz_granter"`
+		FeeGranter   string   `json:"fee_granter"`
 		Mnemonic     string   `json:"mnemonic"`
 		AccAddresses []string `json:"acc_addresses"`
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
+		AuthzGranter: s.ProviderWalletAddress,
+		FeeGranter:   s.ProviderWalletAddress,
 		Mnemonic:     s.FeeGranterMnemonic,
 		AccAddresses: walletAddresses,
 	})
@@ -803,10 +815,8 @@ func (s Sentinel) GrantFeeToWallet(walletAddresses []string) error {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&authz_granter=%s&fee_granter=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
 		s.RPCEndpoint,
-		s.ProviderWalletAddress,
-		s.ProviderWalletAddress,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
 	)
@@ -853,6 +863,7 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 	}
 
 	type blockchainRequest struct {
+		FeeGranter   string   `json:"fee_granter"`
 		Mnemonic     string   `json:"mnemonic"`
 		AccAddresses []string `json:"acc_addresses"`
 		Bytes        []int64  `json:"bytes"`
@@ -864,6 +875,7 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
+		FeeGranter:   s.ProviderWalletAddress,
 		Mnemonic:     s.MainSubscriberMnemonic,
 		AccAddresses: walletAddresses,
 		Bytes:        bytesArr,
@@ -874,9 +886,8 @@ func (s Sentinel) EnrollWalletToSubscription(walletAddresses []string, subscript
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&fee_granter=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
 		s.RPCEndpoint,
-		s.ProviderWalletAddress,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
 	)
@@ -923,13 +934,17 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	}
 
 	type blockchainRequest struct {
-		Mnemonic string `json:"mnemonic"`
-		Denom    string `json:"denom"`
+		AuthzGranter string `json:"authz_granter"`
+		FeeGranter   string `json:"fee_granter"`
+		Mnemonic     string `json:"mnemonic"`
+		Denom        string `json:"denom"`
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
-		Mnemonic: s.SubscriptionUpdaterMnemonic,
-		Denom:    s.DefaultDenom,
+		AuthzGranter: s.ProviderWalletAddress,
+		FeeGranter:   s.ProviderWalletAddress,
+		Mnemonic:     s.SubscriptionUpdaterMnemonic,
+		Denom:        s.DefaultDenom,
 	})
 
 	if err != nil {
@@ -937,10 +952,8 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&authz_granter=%s&fee_granter=%s&chain_id=%s&gas_prices=%s",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s",
 		s.RPCEndpoint,
-		s.MainSubscriberWalletAddress,
-		s.ProviderWalletAddress,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
 	)
