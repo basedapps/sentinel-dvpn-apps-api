@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-type SyncWithSentinelJob struct {
+type SyncNodesWithSentinelJob struct {
 	DB       *gorm.DB
 	Logger   *zap.SugaredLogger
 	Sentinel *sentinel.Sentinel
@@ -19,7 +19,7 @@ type SyncWithSentinelJob struct {
 	planNodes *[]sentinel.SentinelNode
 }
 
-func (job SyncWithSentinelJob) Run() {
+func (job SyncNodesWithSentinelJob) Run() {
 	job.Logger.Infof("fetching nodes from Sentinel")
 	nodes, err := job.fetchActiveNodes()
 	if err != nil {
@@ -38,7 +38,7 @@ func (job SyncWithSentinelJob) Run() {
 	job.processNodes(nodes)
 }
 
-func (job SyncWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode) {
+func (job SyncNodesWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode) {
 	revision := time.Now().Unix()
 
 	for _, node := range *nodes {
@@ -118,7 +118,7 @@ func (job SyncWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode) {
 	}
 }
 
-func (job SyncWithSentinelJob) fetchActiveNodes() (*[]sentinel.SentinelNode, error) {
+func (job SyncNodesWithSentinelJob) fetchActiveNodes() (*[]sentinel.SentinelNode, error) {
 	var syncInProgress bool
 	var limit int
 	var offset int
@@ -147,7 +147,7 @@ func (job SyncWithSentinelJob) fetchActiveNodes() (*[]sentinel.SentinelNode, err
 	return &nodes, nil
 }
 
-func (job SyncWithSentinelJob) fetchNodesOnPlan() (*[]sentinel.SentinelNode, error) {
+func (job SyncNodesWithSentinelJob) fetchNodesOnPlan() (*[]sentinel.SentinelNode, error) {
 	var syncInProgress bool
 	var limit int
 	var offset int
@@ -176,7 +176,7 @@ func (job SyncWithSentinelJob) fetchNodesOnPlan() (*[]sentinel.SentinelNode, err
 	return &nodes, nil
 }
 
-func (job SyncWithSentinelJob) parseNodePrices(node *sentinel.SentinelNode) (int64, int64) {
+func (job SyncNodesWithSentinelJob) parseNodePrices(node *sentinel.SentinelNode) (int64, int64) {
 	var pricePerGB int64
 	for _, gigabytePrice := range node.GigabytePrices {
 		if gigabytePrice.Denom == job.Sentinel.DefaultDenom {
@@ -194,7 +194,7 @@ func (job SyncWithSentinelJob) parseNodePrices(node *sentinel.SentinelNode) (int
 	return pricePerGB, pricePerHour
 }
 
-func (job SyncWithSentinelJob) parseNodeProtocols(status *sentinel.SentinelNodeStatus) []models.ServerProtocol {
+func (job SyncNodesWithSentinelJob) parseNodeProtocols(status *sentinel.SentinelNodeStatus) []models.ServerProtocol {
 	var supportedProtocols []models.ServerProtocol
 
 	if status.Type == 1 {
@@ -208,7 +208,7 @@ func (job SyncWithSentinelJob) parseNodeProtocols(status *sentinel.SentinelNodeS
 	return supportedProtocols
 }
 
-func (job SyncWithSentinelJob) parseNodeConfiguration(node *sentinel.SentinelNode, status *sentinel.SentinelNodeStatus) models.ServerConfiguration {
+func (job SyncNodesWithSentinelJob) parseNodeConfiguration(node *sentinel.SentinelNode, status *sentinel.SentinelNodeStatus) models.ServerConfiguration {
 	pricePerGB, pricePerHour := job.parseNodePrices(node)
 
 	return models.ServerConfiguration{
@@ -226,7 +226,7 @@ func (job SyncWithSentinelJob) parseNodeConfiguration(node *sentinel.SentinelNod
 	}
 }
 
-func (job SyncWithSentinelJob) parseCurrentLoad(status *sentinel.SentinelNodeStatus) float64 {
+func (job SyncNodesWithSentinelJob) parseCurrentLoad(status *sentinel.SentinelNodeStatus) float64 {
 	currentLoad := float64(status.Peers) / float64(status.QoS.MaxPeers)
 	if currentLoad > 1 {
 		currentLoad = 1
@@ -235,7 +235,7 @@ func (job SyncWithSentinelJob) parseCurrentLoad(status *sentinel.SentinelNodeSta
 	return currentLoad
 }
 
-func (job SyncWithSentinelJob) parseCountryId(status *sentinel.SentinelNodeStatus) (uint, error) {
+func (job SyncNodesWithSentinelJob) parseCountryId(status *sentinel.SentinelNodeStatus) (uint, error) {
 	countryName := status.Location.Country
 
 	var country models.Country
@@ -247,7 +247,7 @@ func (job SyncWithSentinelJob) parseCountryId(status *sentinel.SentinelNodeStatu
 	return country.ID, nil
 }
 
-func (job SyncWithSentinelJob) parseCityId(status *sentinel.SentinelNodeStatus, countryId uint) (uint, error) {
+func (job SyncNodesWithSentinelJob) parseCityId(status *sentinel.SentinelNodeStatus, countryId uint) (uint, error) {
 	cityName := status.Location.City
 
 	var city models.City
@@ -273,7 +273,7 @@ func (job SyncWithSentinelJob) parseCityId(status *sentinel.SentinelNodeStatus, 
 	return city.ID, nil
 }
 
-func (job SyncWithSentinelJob) checkIfIncludedInPlan(node *sentinel.SentinelNode) bool {
+func (job SyncNodesWithSentinelJob) checkIfIncludedInPlan(node *sentinel.SentinelNode) bool {
 	for _, planNode := range *job.planNodes {
 		if planNode.Address == node.Address {
 			return true

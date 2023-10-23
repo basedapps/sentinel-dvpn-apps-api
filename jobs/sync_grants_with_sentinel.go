@@ -2,17 +2,18 @@ package jobs
 
 import (
 	"dvpn/internal/sentinel"
+	"dvpn/models"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-type SyncFeeGrantList struct {
+type SyncGrantsWithSentinelJob struct {
 	DB       *gorm.DB
 	Logger   *zap.SugaredLogger
 	Sentinel *sentinel.Sentinel
 }
 
-func (job SyncFeeGrantList) Run() {
+func (job SyncGrantsWithSentinelJob) Run() {
 	job.Logger.Infof("fetching grant fee allowances from Sentinel")
 	allowances, err := job.fetchAllowances()
 	if err != nil {
@@ -20,16 +21,28 @@ func (job SyncFeeGrantList) Run() {
 		return
 	}
 
+	var devices []models.Device
+	tx := job.DB.Model(&models.Device{}).Order("created_at").Find(&devices, "sentinel_is_fee_granted = ?", false)
+	if tx.Error != nil {
+		job.Logger.Error("failed to get sentinel wallets from the DB: " + tx.Error.Error())
+		return
+	}
+
 	for _, allowance := range *allowances {
-		tx := job.DB.Exec("UPDATE devices SET is_fee_granted= ? WHERE wallet_address = ?", true, allowance.Grantee)
-		if tx.Error != nil {
-			job.Logger.Errorf("Error updating grant fee allowances for wallet "+allowance.Grantee+": %v", tx.Error)
-			return
+		for _, device := range devices {
+			if allowance.Grantee == device.WalletAddress {
+				device.IsFeeGranted = true
+				tx = job.DB.Save(&device)
+				if tx.Error != nil {
+					job.Logger.Error("failed to update device Sentinel `is_fee_grant` status: " + tx.Error.Error())
+					continue
+				}
+			}
 		}
 	}
 }
 
-func (job SyncFeeGrantList) fetchAllowances() (*[]sentinel.SentinelAllowance, error) {
+func (job SyncGrantsWithSentinelJob) fetchAllowances() (*[]sentinel.SentinelAllowance, error) {
 	var syncInProgress bool
 	var limit int
 	var offset int

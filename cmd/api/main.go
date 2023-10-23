@@ -108,7 +108,13 @@ func main() {
 
 	logger.Info("Initializing jobs...")
 	if os.Getenv("ENVIRONMENT") != "debug" {
-		syncWithSentinelJob := jobs.SyncWithSentinelJob{
+		syncWithSentinelJob := jobs.SyncNodesWithSentinelJob{
+			DB:       db,
+			Logger:   logger,
+			Sentinel: sentinel,
+		}
+
+		syncGrantsWithSentinelJob := jobs.SyncGrantsWithSentinelJob{
 			DB:       db,
 			Logger:   logger,
 			Sentinel: sentinel,
@@ -138,12 +144,13 @@ func main() {
 			Sentinel: sentinel,
 		}
 
-		nodesScheduler := gocron.NewScheduler(time.UTC)
-		nodesScheduler.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-		nodesScheduler.Every(1).Hour().Do(func() {
+		sentinelScheduler := gocron.NewScheduler(time.UTC)
+		sentinelScheduler.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
+		sentinelScheduler.Every(1).Hour().Do(func() {
 			syncWithSentinelJob.Run()
+			syncGrantsWithSentinelJob.Run()
 		})
-		nodesScheduler.StartAsync()
+		sentinelScheduler.StartAsync()
 
 		grantFeeScheduler := gocron.NewScheduler(time.UTC)
 		grantFeeScheduler.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
