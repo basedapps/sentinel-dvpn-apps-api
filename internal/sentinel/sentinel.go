@@ -131,7 +131,7 @@ func (s Sentinel) FetchNodeStatus(node SentinelNode) (*SentinelNodeStatus, error
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to unmarshal JSON from Sentinel dVPN node response — " + err.Error() + " (" + string(body) + ")")
 	}
 
 	if response.Success == false {

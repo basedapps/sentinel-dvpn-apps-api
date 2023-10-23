@@ -322,7 +322,7 @@ func (vc VPNController) createCredentials(device *models.Device, server *models.
 	if device.SubscriptionId == nil || device.IsFeeGranted == false {
 		reason := "wallet " + device.WalletAddress + " is not yet enrolled"
 		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
-		vc.Logger.Error(reason)
+		vc.Logger.Warn(reason)
 		return
 	}
 

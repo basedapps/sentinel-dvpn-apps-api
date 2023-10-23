@@ -106,7 +106,7 @@ func (job SyncWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode) {
 				}
 			}
 		} else {
-			job.Logger.Errorf("failed to fetch Sentinel node status for %s: %s", node.Address, err)
+			job.Logger.Warnw("failed to fetch Sentinel node status for "+node.Address+": "+err.Error(), "url", node.RemoteURL)
 		}
 	}
 
