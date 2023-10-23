@@ -547,7 +547,7 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	}
 
 	args := fmt.Sprintf(
-		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d",
+		"?rpc_address=%s&chain_id=%s&gas_prices=%s&gas=%d&simulate_and_execute=false",
 		s.RPCEndpoint,
 		s.ChainID,
 		s.GasPrice+s.DefaultDenom,
