@@ -130,7 +130,7 @@ func (job SyncWithSentinelJob) fetchActiveNodes() (*[]sentinel.SentinelNode, err
 	var nodes []sentinel.SentinelNode
 
 	for syncInProgress {
-		n, err := job.Sentinel.FetchNodes(offset, limit)
+		n, err := job.Sentinel.FetchNodes(limit, offset)
 		if err != nil {
 			return nil, err
 		}

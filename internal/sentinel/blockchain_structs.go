@@ -192,3 +192,15 @@ func (sc SentinelCredentials) DTO() SentinelCredentialsDTO {
 		Payload:    sc.Result,
 	}
 }
+
+type SentinelAllowance struct {
+	Grantee string `json:"grantee"`
+	Granter string `json:"granter"`
+}
+
+func (sa SentinelAllowance) DTO() SentinelAllowanceDTO {
+	return SentinelAllowanceDTO{
+		Grantee: sa.Grantee,
+		Granter: sa.Granter,
+	}
+}

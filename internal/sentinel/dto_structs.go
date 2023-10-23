@@ -49,3 +49,8 @@ type SentinelCredentialsDTO struct {
 	PrivateKey string `json:"privateKey,omitempty"`
 	Payload    string `json:"payload"`
 }
+
+type SentinelAllowanceDTO struct {
+	Grantee string `json:"grantee"`
+	Granter string `json:"granter"`
+}

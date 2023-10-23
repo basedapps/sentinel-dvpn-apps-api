@@ -50,7 +50,7 @@ type Sentinel struct {
 	GasBase      int64
 }
 
-func (s Sentinel) FetchNodes(offset int, limit int) (*[]SentinelNode, error) {
+func (s Sentinel) FetchNodes(limit int, offset int) (*[]SentinelNode, error) {
 	type blockchainResponse struct {
 		Success bool            `json:"success"`
 		Error   *SentinelError  `json:"error"`
@@ -199,7 +199,7 @@ func (s Sentinel) FetchBalance(walletAddress string) (int64, error) {
 	return walletBalance, nil
 }
 
-func (s Sentinel) FetchSessions(walletAddress string, offset int, limit int) (*[]SentinelSession, error) {
+func (s Sentinel) FetchSessions(walletAddress string, limit int, offset int) (*[]SentinelSession, error) {
 	type blockchainResponse struct {
 		Success bool               `json:"success"`
 		Error   *SentinelError     `json:"error"`
@@ -247,7 +247,7 @@ func (s Sentinel) FetchSessions(walletAddress string, offset int, limit int) (*[
 	return response.Result, nil
 }
 
-func (s Sentinel) FetchSubscriptions(walletAddress string, offset int, limit int) (*[]SentinelSubscription, error) {
+func (s Sentinel) FetchSubscriptions(walletAddress string, limit int, offset int) (*[]SentinelSubscription, error) {
 	type blockchainResponse struct {
 		Success bool                    `json:"success"`
 		Error   *SentinelError          `json:"error"`
@@ -307,7 +307,7 @@ func (s Sentinel) FindSubscriptionForNode(walletAddress string, nodeAddress stri
 	var subscriptions []SentinelSubscription
 
 	for fetchInProgress {
-		s, err := s.FetchSubscriptions(walletAddress, offset, limit)
+		s, err := s.FetchSubscriptions(walletAddress, limit, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -794,6 +794,53 @@ func (s Sentinel) RemoveNodeFromPlan(nodeAddress string) error {
 	}
 
 	return nil
+}
+
+func (s Sentinel) FetchFeeGrantAllowances(limit int, offset int) (*[]SentinelAllowance, error) {
+	type blockchainResponse struct {
+		Success bool                 `json:"success"`
+		Error   *SentinelError       `json:"error"`
+		Result  *[]SentinelAllowance `json:"result"`
+	}
+
+	args := fmt.Sprintf(
+		"?rpc_address=%s&chain_id=%s&limit=%d&offset=%d",
+		s.RPCEndpoint,
+		s.ChainID,
+		limit,
+		offset,
+	)
+
+	url := s.APIEndpoint + "/api/v1/feegrants/" + s.ProviderWalletAddress + args
+	req, _ := http.NewRequest("GET", url, nil)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var response *blockchainResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Success == false {
+		apiError := ""
+		if response.Error != nil {
+			apiError = " (" + response.Error.Message + ")"
+		}
+
+		return nil, errors.New("success `false` returned from Sentinel API when fetching fee grant allowances: " + apiError)
+	}
+
+	return response.Result, nil
 }
 
 func (s Sentinel) GrantFeeToWallet(walletAddresses []string) error {
