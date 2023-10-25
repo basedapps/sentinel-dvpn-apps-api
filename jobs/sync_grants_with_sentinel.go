@@ -22,7 +22,7 @@ func (job SyncGrantsWithSentinelJob) Run() {
 	}
 
 	var devices []models.Device
-	tx := job.DB.Model(&models.Device{}).Order("created_at").Find(&devices, "sentinel_is_fee_granted = ?", false)
+	tx := job.DB.Model(&models.Device{}).Order("created_at").Find(&devices, "is_fee_granted = ?", false)
 	if tx.Error != nil {
 		job.Logger.Error("failed to get sentinel wallets from the DB: " + tx.Error.Error())
 		return
