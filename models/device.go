@@ -43,6 +43,7 @@ func (d Device) MarshalJSON() ([]byte, error) {
 		Platform:      string(d.Platform),
 		Token:         d.Token,
 		IsBanned:      d.IsBanned,
+		IsEnrolled:    d.SubscriptionId != nil && d.IsFeeGranted,
 		WalletAddress: d.WalletAddress,
 	})
 }
