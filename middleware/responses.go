@@ -35,6 +35,10 @@ func RespondErr(c *gin.Context, error APIError, reason string) {
 		c.AbortWithStatusJSON(http.StatusNotFound, r)
 	} else if error == APIErrorUnauthorizedDevice {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, r)
+	} else if error == APIErrorBannedDevice {
+		c.AbortWithStatusJSON(http.StatusForbidden, r)
+	} else if error == APIErrorDeviceNotEnrolled {
+		c.AbortWithStatusJSON(http.StatusTooEarly, r)
 	} else {
 		c.AbortWithStatusJSON(http.StatusBadRequest, r)
 	}

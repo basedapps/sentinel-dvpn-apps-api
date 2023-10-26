@@ -36,6 +36,7 @@ func (d Device) MarshalJSON() ([]byte, error) {
 		Platform      string `json:"platform"`
 		Token         string `json:"token"`
 		IsBanned      bool   `json:"is_banned"`
+		IsEnrolled    bool   `json:"is_enrolled"`
 		WalletAddress string `json:"wallet_address"`
 	}{
 		ID:            d.ID,

@@ -144,7 +144,7 @@ func (vc VPNController) GetCities(c *gin.Context) {
 func (vc VPNController) GetServers(c *gin.Context) {
 	var servers []models.Server
 
-	query := vc.DB.Model(&models.Server{}).Where("is_active = ?", true)
+	query := vc.DB.Model(&models.Server{}).Where("is_active = ? AND is_banned = ?", true, false)
 
 	sortBy := c.Query("sortBy")
 	if sortBy != "" {
@@ -286,7 +286,7 @@ func (vc VPNController) ConnectToServer(c *gin.Context) {
 	}
 
 	var server models.Server
-	tx := vc.DB.First(&server, "id = ? AND city_id = ? AND country_id = ?", &serverId, &cityId, &countryId)
+	tx := vc.DB.First(&server, "id = ? AND city_id = ? AND country_id = ? AND is_banned = ?", &serverId, &cityId, &countryId, false)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			middleware.RespondErr(c, middleware.APIErrorNotFound, "server not found: "+tx.Error.Error())
@@ -321,7 +321,7 @@ func (vc VPNController) createCredentials(device *models.Device, server *models.
 
 	if device.SubscriptionId == nil || device.IsFeeGranted == false {
 		reason := "wallet " + device.WalletAddress + " is not yet enrolled"
-		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
+		middleware.RespondErr(c, middleware.APIErrorDeviceNotEnrolled, reason)
 		vc.Logger.Warn(reason)
 		return
 	}

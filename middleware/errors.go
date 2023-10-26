@@ -12,8 +12,10 @@ var (
 
 	// Auth
 	APIErrorUnauthorizedDevice APIError = errors.New("unauthorizedDevice")
+	APIErrorBannedDevice       APIError = errors.New("bannedDevice")
 
 	// Other
-	APIErrorServerInactive   APIError = errors.New("serverInactive")
-	APIErrorServerNotCovered APIError = errors.New("serverNotCovered")
+	APIErrorDeviceNotEnrolled APIError = errors.New("deviceNotEnrolled")
+	APIErrorServerInactive    APIError = errors.New("serverInactive")
+	APIErrorServerNotCovered  APIError = errors.New("serverNotCovered")
 )

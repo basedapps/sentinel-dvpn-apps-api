@@ -43,6 +43,11 @@ func (am AuthMiddleware) RequireAuth(c *gin.Context) {
 		return
 	}
 
+	if device.IsBanned {
+		RespondErr(c, APIErrorBannedDevice, "device is banned")
+		return
+	}
+
 	c.Set("currentDeviceID", device.ID)
 	c.Next()
 }

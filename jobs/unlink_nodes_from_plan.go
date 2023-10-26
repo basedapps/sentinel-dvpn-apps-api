@@ -46,13 +46,13 @@ func (job UnlinkNodesFromPlanJob) Run() {
 		}
 	}
 
-	tx = job.DB.Exec("UPDATE cities AS c SET servers_available = (SELECT COUNT(s.id) FROM servers AS s WHERE s.city_id = c.id AND s.is_active = ? AND s.is_included_in_plan = ?)", true, true)
+	tx = job.DB.Exec("UPDATE cities AS c SET servers_available = (SELECT COUNT(s.id) FROM servers AS s WHERE s.city_id = c.id AND s.is_active = ? AND s.is_included_in_plan = ? AND s.is_banned = ?)", true, true, false)
 	if tx.Error != nil {
 		job.Logger.Errorf("Error updating cities: %v", tx.Error)
 		return
 	}
 
-	tx = job.DB.Exec("UPDATE countries AS c SET servers_available = (SELECT COUNT(s.id) FROM servers AS s WHERE s.country_id = c.id AND s.is_active = ? AND s.is_included_in_plan = ?)", true, true)
+	tx = job.DB.Exec("UPDATE countries AS c SET servers_available = (SELECT COUNT(s.id) FROM servers AS s WHERE s.country_id = c.id AND s.is_active = ? AND s.is_included_in_plan = ? AND s.is_banned = ?)", true, true, false)
 	if tx.Error != nil {
 		job.Logger.Errorf("Error updating countries: %v", tx.Error)
 		return

@@ -43,7 +43,7 @@ func (job EnrollWalletsJob) Run() {
 	}
 
 	var devices []models.Device
-	tx = job.DB.Model(&models.Device{}).Order("created_at").Limit(10).Where("subscription_id IS DISTINCT FROM ?", sentinelPlanSubscription.ID).Find(&devices)
+	tx = job.DB.Model(&models.Device{}).Order("created_at").Limit(50).Where("subscription_id IS DISTINCT FROM ?", sentinelPlanSubscription.ID).Find(&devices)
 	if tx.Error != nil {
 		job.Logger.Error("failed to get sentinel wallets from the DB: " + tx.Error.Error())
 		return
