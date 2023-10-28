@@ -18,7 +18,7 @@ type EnrollWalletsJob struct {
 func (job EnrollWalletsJob) Run() {
 
 	now := time.Now()
-	inactivityThreshold := now.Add(time.Duration(-24) * time.Hour)
+	inactivityThreshold := now.Add(time.Duration(24) * time.Hour)
 
 	var sentinelPlanSubscription *models.SentinelPlanSubscription
 	tx := job.DB.Model(&models.SentinelPlanSubscription{}).Order("id desc").First(&sentinelPlanSubscription, "inactive_at > ?", inactivityThreshold)
