@@ -1003,7 +1003,7 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	payload, err := json.Marshal(blockchainRequest{
 		AuthzGranter: s.ProviderWalletAddress,
 		FeeGranter:   s.ProviderWalletAddress,
-		Mnemonic:     s.SubscriptionUpdaterMnemonic,
+		Mnemonic:     s.MainSubscriberMnemonic,
 		Denom:        s.DefaultDenom,
 	})
 
