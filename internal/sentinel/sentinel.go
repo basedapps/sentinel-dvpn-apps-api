@@ -994,15 +994,17 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	}
 
 	type blockchainRequest struct {
-		FeeGranter string `json:"fee_granter"`
-		Mnemonic   string `json:"mnemonic"`
-		Denom      string `json:"denom"`
+		AuthzGranter string `json:"authz_granter"`
+		FeeGranter   string `json:"fee_granter"`
+		Mnemonic     string `json:"mnemonic"`
+		Denom        string `json:"denom"`
 	}
 
 	payload, err := json.Marshal(blockchainRequest{
-		FeeGranter: s.ProviderWalletAddress,
-		Mnemonic:   s.MainSubscriberMnemonic,
-		Denom:      s.DefaultDenom,
+		AuthzGranter: s.MainSubscriberWalletAddress,
+		FeeGranter:   s.ProviderWalletAddress,
+		Mnemonic:     s.SubscriptionUpdaterMnemonic,
+		Denom:        s.DefaultDenom,
 	})
 
 	if err != nil {
