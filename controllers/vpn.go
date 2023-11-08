@@ -105,7 +105,15 @@ func (vc VPNController) GetIPAddress(c *gin.Context) {
 
 func (vc VPNController) GetCountries(c *gin.Context) {
 	var countries []models.Country
-	tx := vc.DB.Model(&models.Country{}).Order("name").Find(&countries, "servers_available > ?", 0)
+	var tx *gorm.DB
+
+	protocol := c.Query("protocol")
+	if protocol != "" && protocol != "ALL" {
+		tx = vc.DB.Raw("SELECT c.id, c.created_at, c.updated_at, c.name, c.code, COUNT(s.id) as servers_available FROM countries AS c INNER JOIN servers AS s ON s.country_id = c.id WHERE s.is_active = true AND s.is_included_in_plan = true AND s.is_banned = false AND s.protocols->>0 = ? GROUP BY c.id ORDER BY c.name", protocol).Scan(&countries)
+	} else {
+		tx = vc.DB.Raw("SELECT c.id, c.created_at, c.updated_at, c.country_id, c.name, COUNT(s.id) as servers_available FROM cities AS c INNER JOIN servers AS s ON s.city_id = c.id WHERE s.is_active = true AND s.is_included_in_plan = true AND s.is_banned = false GROUP BY c.id ORDER BY c.name").Scan(&countries)
+	}
+
 	if tx.Error != nil {
 		reason := "failed to get countries: " + tx.Error.Error()
 		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)
@@ -124,9 +132,16 @@ func (vc VPNController) GetCities(c *gin.Context) {
 	}
 
 	var cities []models.City
+	var tx *gorm.DB
 
-	err = vc.DB.Order("name").Find(&cities, "country_id = ? AND servers_available > 0", countryId).Order("").Error
-	if err != nil {
+	protocol := c.Query("protocol")
+	if protocol != "" && protocol != "ALL" {
+		tx = vc.DB.Raw("SELECT c.id, c.created_at, c.updated_at, c.country_id, c.name, COUNT(s.id) as servers_available FROM cities AS c INNER JOIN servers AS s ON s.city_id = c.id WHERE s.is_active = true AND s.is_included_in_plan = true AND s.is_banned = false AND s.protocols->>0 = ? AND c.country_id = ? GROUP BY c.id ORDER BY servers_available DESC", protocol, countryId).Scan(&cities)
+	} else {
+		tx = vc.DB.Raw("SELECT c.id, c.created_at, c.updated_at, c.country_id, c.name, COUNT(s.id) as servers_available FROM cities AS c INNER JOIN servers AS s ON s.city_id = c.id WHERE s.is_active = true AND s.is_included_in_plan = true AND s.is_banned = false AND c.country_id = ? GROUP BY c.id ORDER BY servers_available DESC", countryId).Scan(&cities)
+	}
+
+	if tx.Error != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			middleware.RespondOK(c, []models.City{})
 			return
