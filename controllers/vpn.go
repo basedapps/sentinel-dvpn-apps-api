@@ -111,7 +111,7 @@ func (vc VPNController) GetCountries(c *gin.Context) {
 	if protocol != "" && protocol != "ALL" {
 		tx = vc.DB.Raw("SELECT c.id, c.created_at, c.updated_at, c.name, c.code, COUNT(s.id) as servers_available FROM countries AS c INNER JOIN servers AS s ON s.country_id = c.id WHERE s.is_active = true AND s.is_included_in_plan = true AND s.is_banned = false AND s.protocols->>0 = ? GROUP BY c.id ORDER BY c.name", protocol).Scan(&countries)
 	} else {
-		tx = vc.DB.Raw("SELECT c.id, c.created_at, c.updated_at, c.country_id, c.name, COUNT(s.id) as servers_available FROM cities AS c INNER JOIN servers AS s ON s.city_id = c.id WHERE s.is_active = true AND s.is_included_in_plan = true AND s.is_banned = false GROUP BY c.id ORDER BY c.name").Scan(&countries)
+		tx = vc.DB.Raw("SELECT c.id, c.created_at, c.updated_at, c.name, c.code, COUNT(s.id) as servers_available FROM countries AS c INNER JOIN servers AS s ON s.country_id = c.id WHERE s.is_active = true AND s.is_included_in_plan = true AND s.is_banned = false GROUP BY c.id ORDER BY c.name").Scan(&countries)
 	}
 
 	if tx.Error != nil {
