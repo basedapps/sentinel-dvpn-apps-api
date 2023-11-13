@@ -157,9 +157,21 @@ func (vc VPNController) GetCities(c *gin.Context) {
 }
 
 func (vc VPNController) GetServers(c *gin.Context) {
+	countryId, err := strconv.ParseUint(c.Params.ByName("country_id"), 10, 64)
+	if err != nil {
+		middleware.RespondErr(c, middleware.APIErrorInvalidRequest, "invalid country id: "+err.Error())
+		return
+	}
+
+	cityId, err := strconv.ParseUint(c.Params.ByName("city_id"), 10, 64)
+	if err != nil {
+		middleware.RespondErr(c, middleware.APIErrorInvalidRequest, "invalid city id: "+err.Error())
+		return
+	}
+
 	var servers []models.Server
 
-	query := vc.DB.Model(&models.Server{}).Where("is_active = ? AND is_banned = ?", true, false)
+	query := vc.DB.Model(&models.Server{}).Where("country_id = ? AND city_id = ? AND is_active = ? AND is_banned = ?", countryId, cityId, true, false)
 
 	sortBy := c.Query("sortBy")
 	if sortBy != "" {
@@ -193,16 +205,6 @@ func (vc VPNController) GetServers(c *gin.Context) {
 		}
 
 		query = query.Limit(limit)
-	}
-
-	country := c.Query("country")
-	if country != "" {
-		query = query.Where("country_id = ?", strings.ToUpper(country))
-	}
-
-	city := c.Query("city")
-	if city != "" {
-		query = query.Where("city_id = ?", strings.ToUpper(city))
 	}
 
 	protocol := c.Query("protocol")
