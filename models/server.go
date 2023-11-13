@@ -74,6 +74,7 @@ func (s Server) MarshalJSON() ([]byte, error) {
 	server := serverJSON{
 		ID:          s.ID,
 		CountryID:   s.CountryID,
+		CityID:      s.CityID,
 		Name:        s.Name,
 		Address:     s.Configuration.Data().Address,
 		IsAvailable: s.IsActive,
