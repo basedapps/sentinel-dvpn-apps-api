@@ -256,7 +256,7 @@ func (vc VPNController) ConnectToCity(c *gin.Context) {
 	var server models.Server
 
 	if protocol != "" {
-		err = vc.DB.Order("id desc").First(&server, "current_load < ? AND country_id = ? AND city_id = ? AND is_included_in_plan = ? AND is_banned = ? AND is_active = ? AND protocols->>0 = ?", 0.9, countryId, cityId, true, false, true, protocol).Error
+		err = vc.DB.Order("RANDOM()").First(&server, "current_load < ? AND country_id = ? AND city_id = ? AND is_included_in_plan = ? AND is_banned = ? AND is_active = ? AND protocols->>0 = ?", 0.9, countryId, cityId, true, false, true, protocol).Error
 		if err != nil {
 			middleware.RespondErr(c, middleware.APIErrorUnknown, "failed to get server: "+err.Error())
 			return
@@ -266,7 +266,7 @@ func (vc VPNController) ConnectToCity(c *gin.Context) {
 		return
 	}
 
-	err = vc.DB.Order("id desc").First(&server, "current_load < ? AND country_id = ? AND city_id = ? AND is_included_in_plan = ? AND is_banned = ? AND is_active = ?", 0.9, countryId, cityId, true, false, true).Error
+	err = vc.DB.Order("RANDOM()").First(&server, "current_load < ? AND country_id = ? AND city_id = ? AND is_included_in_plan = ? AND is_banned = ? AND is_active = ?", 0.9, countryId, cityId, true, false, true).Error
 	if err != nil {
 		middleware.RespondErr(c, middleware.APIErrorUnknown, "failed to get server: "+err.Error())
 		return
