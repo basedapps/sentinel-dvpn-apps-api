@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -112,7 +113,7 @@ func (s Sentinel) FetchNodeStatus(node SentinelNode) (*SentinelNodeStatus, error
 
 	client := &http.Client{
 		Transport: transport,
-		Timeout:   5 * time.Second,
+		Timeout:   4 * time.Second,
 	}
 
 	res, err := client.Get(url)
@@ -1078,4 +1079,32 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	}
 
 	return nil, errors.New("No subscription ID found in events returned from Sentinel API during creation of subscription for plan " + s.ProviderPlanID + " (response: " + string(body) + ")")
+}
+
+func (s Sentinel) CheckIfNodeIsResponding(node SentinelNode) bool {
+	url := fmt.Sprintf("%s/accounts/"+s.ProviderWalletAddress+"/sessions/1", node.RemoteURL)
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	client := &http.Client{
+		Transport: transport,
+		Timeout:   4 * time.Second,
+	}
+
+	payload, err := json.Marshal(struct{}{})
+	if err != nil {
+		return false
+	}
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+
+	_, err = client.Do(req)
+	if err != nil {
+		if os.IsTimeout(err) {
+			return false
+		}
+	}
+
+	return true
 }

@@ -44,6 +44,12 @@ func (job SyncNodesWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode)
 	for _, node := range *nodes {
 		job.Logger.Infof("requesting status for node %s", node.Address)
 
+		isNodeResponding := job.Sentinel.CheckIfNodeIsResponding(node)
+		if isNodeResponding == false {
+			job.Logger.Warnf("Sentine node %s is failing to respond to healthcheck request. It will be marked inactive after sync.", node.Address)
+			continue
+		}
+
 		status, err := job.Sentinel.FetchNodeStatus(node)
 		if err == nil {
 			protocols := datatypes.NewJSONType(job.parseNodeProtocols(status))
