@@ -114,12 +114,6 @@ func main() {
 			Sentinel: sentinel,
 		}
 
-		syncGrantsWithSentinelJob := jobs.SyncGrantsWithSentinelJob{
-			DB:       db,
-			Logger:   logger,
-			Sentinel: sentinel,
-		}
-
 		grantFeeToWalletsJob := jobs.GrantFeeToWalletsJob{
 			DB:       db,
 			Logger:   logger,
@@ -148,7 +142,6 @@ func main() {
 		sentinelScheduler.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
 		sentinelScheduler.Every(1).Hour().Do(func() {
 			syncWithSentinelJob.Run()
-			syncGrantsWithSentinelJob.Run()
 		})
 		sentinelScheduler.StartAsync()
 

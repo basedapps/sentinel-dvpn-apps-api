@@ -446,7 +446,7 @@ func (s Sentinel) CreateNodeSubscription(nodeAddress string, gigabytes int64, ho
 		return nil, errors.New("success `false` returned  from Sentinel API during creation of subscription for node " + nodeAddress + apiError)
 	}
 
-	for _, event := range response.Result.Events {
+	for _, event := range response.Result.TxResult.Events {
 		if event.Type == "sentinel.node.v2.EventCreateSubscription" {
 			for _, attribute := range event.Attributes {
 
@@ -1051,7 +1051,7 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 		return nil, errors.New("success `false` returned  from Sentinel API during creation of subscription for plan " + s.ProviderPlanID + apiError)
 	}
 
-	for _, event := range response.Result.Events {
+	for _, event := range response.Result.TxResult.Events {
 		if event.Type == "sentinel.plan.v2.EventCreateSubscription" {
 			for _, attribute := range event.Attributes {
 

@@ -87,10 +87,14 @@ type SentinelTransactionEvent struct {
 	Attributes []SentinelTransactionEventAttribute `json:"attributes"`
 }
 
-type SentinelTransaction struct {
-	Height int64                      `json:"height"`
-	TxHash string                     `json:"txhash"`
+type SentinelTransactionResult struct {
 	Events []SentinelTransactionEvent `json:"events"`
+}
+
+type SentinelTransaction struct {
+	Height   int64                     `json:"height"`
+	TxHash   string                    `json:"txhash"`
+	TxResult SentinelTransactionResult `json:"tx_result"`
 }
 
 type SentinelSessionStatus int64

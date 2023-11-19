@@ -21,9 +21,27 @@ func (job GrantFeeToWalletsJob) Run() {
 		return
 	}
 
+	job.Logger.Infof("fetching grant fee allowances from Sentinel")
+	existingAllowances, err := job.fetchAllowances()
+	if err != nil {
+		job.Logger.Errorw("failed to fetch grant fee allowances from Sentinel", "error", err)
+		return
+	}
+
 	var walletAddresses []string = make([]string, 0)
 
 	for _, device := range devices {
+		for _, allowance := range *existingAllowances {
+			if allowance.Grantee == device.WalletAddress {
+				device.IsFeeGranted = true
+				tx = job.DB.Save(&device)
+				if tx.Error != nil {
+					job.Logger.Error("failed to update device Sentinel existing `is_fee_grant` status: " + tx.Error.Error())
+					continue
+				}
+			}
+		}
+
 		walletAddresses = append(walletAddresses, device.WalletAddress)
 	}
 
@@ -31,7 +49,7 @@ func (job GrantFeeToWalletsJob) Run() {
 		return
 	}
 
-	err := job.Sentinel.GrantFeeToWallet(walletAddresses)
+	err = job.Sentinel.GrantFeeToWallet(walletAddresses)
 	if err != nil {
 		job.Logger.Error("failed to grant fee to sentinel wallets: " + err.Error())
 		return
@@ -45,4 +63,33 @@ func (job GrantFeeToWalletsJob) Run() {
 			continue
 		}
 	}
+}
+
+func (job GrantFeeToWalletsJob) fetchAllowances() (*[]sentinel.SentinelAllowance, error) {
+	var syncInProgress bool
+	var limit int
+	var offset int
+
+	syncInProgress = true
+	limit = 100
+	offset = 0
+
+	var allowances []sentinel.SentinelAllowance
+
+	for syncInProgress {
+		n, err := job.Sentinel.FetchFeeGrantAllowances(limit, offset)
+		if err != nil {
+			return nil, err
+		}
+
+		if n == nil {
+			syncInProgress = false
+		} else {
+			allowances = append(allowances, *n...)
+		}
+
+		offset += limit
+	}
+
+	return &allowances, nil
 }
