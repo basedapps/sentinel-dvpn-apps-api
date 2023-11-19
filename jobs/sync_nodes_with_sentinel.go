@@ -46,7 +46,7 @@ func (job SyncNodesWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode)
 
 		isNodeResponding := job.Sentinel.CheckIfNodeIsResponding(node)
 		if isNodeResponding == false {
-			job.Logger.Warnf("Sentine node %s is failing to respond to healthcheck request. It will be marked inactive after sync.", node.Address)
+			job.Logger.Warnf("Sentinel node %s is failing to respond to healthcheck request. It will be marked inactive after sync.", node.Address)
 			continue
 		}
 
@@ -164,7 +164,7 @@ func (job SyncNodesWithSentinelJob) fetchNodesOnPlan() (*[]sentinel.SentinelNode
 	var offset int
 
 	syncInProgress = true
-	limit = 100
+	limit = 10000
 	offset = 0
 
 	var nodes []sentinel.SentinelNode
@@ -287,9 +287,11 @@ func (job SyncNodesWithSentinelJob) parseCityId(status *sentinel.SentinelNodeSta
 func (job SyncNodesWithSentinelJob) checkIfIncludedInPlan(node *sentinel.SentinelNode) bool {
 	for _, planNode := range *job.planNodes {
 		if planNode.Address == node.Address {
+			job.Logger.Infof("Sentinel node %s IS found in list of nodes enrolled under the plan", node.Address)
 			return true
 		}
 	}
 
+	job.Logger.Infof("Sentinel node %s NOT found in list of nodes enrolled under the plan", node.Address)
 	return false
 }

@@ -30,7 +30,10 @@ func (job UnlinkNodesFromPlanJob) Run() {
 	}
 
 	for _, server := range servers {
-		if server.Configuration.Data().PricePerHour > maxPricePerHour || !server.IsActive || server.IsBanned {
+		if server.Configuration.Data().PricePerHour > maxPricePerHour || server.IsActive == false || server.IsBanned {
+
+			job.Logger.Infof("Sentinel node %s is no longer satisfy plan listing criteria. It will be removed from the plan.", server.Configuration.Data().Address)
+
 			err := job.Sentinel.RemoveNodeFromPlan(server.Configuration.Data().Address)
 			if err != nil {
 				job.Logger.Error("failed to remove node from plan: " + err.Error())
@@ -43,6 +46,8 @@ func (job UnlinkNodesFromPlanJob) Run() {
 				job.Logger.Error("failed to update server in the DB: " + tx.Error.Error())
 				continue
 			}
+
+			job.Logger.Infof("Sentinel node %s was removed from the plan.", server.Configuration.Data().Address)
 		}
 	}
 

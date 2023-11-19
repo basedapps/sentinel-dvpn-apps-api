@@ -17,7 +17,7 @@ type LinkNodesWithPlanJob struct {
 
 func (job LinkNodesWithPlanJob) Run() {
 	var servers []models.Server
-	tx := job.DB.Model(&models.Server{}).Order("created_at").Limit(10).Find(&servers, "is_included_in_plan = ? AND is_banned = ?", false, false)
+	tx := job.DB.Model(&models.Server{}).Order("created_at").Limit(10).Find(&servers, "is_included_in_plan = ? AND is_banned = ? AND is_active = ?", false, false, true)
 	if tx.Error != nil {
 		job.Logger.Error("failed to get sentinel servers from the DB: " + tx.Error.Error())
 		return
@@ -32,7 +32,8 @@ func (job LinkNodesWithPlanJob) Run() {
 	var nodeAddresses []string = make([]string, 0)
 
 	for _, server := range servers {
-		if server.Configuration.Data().PricePerHour <= maxPricePerHour && server.IsActive {
+		if server.Configuration.Data().PricePerHour <= maxPricePerHour {
+			job.Logger.Infof("Sentinel node %s is now satisfy plan listing criteria. It will be added to the plan.", server.Configuration.Data().Address)
 			nodeAddresses = append(nodeAddresses, server.Configuration.Data().Address)
 		}
 	}
@@ -54,6 +55,8 @@ func (job LinkNodesWithPlanJob) Run() {
 			job.Logger.Error("failed to update server in the DB: " + tx.Error.Error())
 			continue
 		}
+
+		job.Logger.Infof("Sentinel node %s was added to the plan.", server.Configuration.Data().Address)
 	}
 
 	tx = job.DB.Exec("UPDATE cities AS c SET servers_available = (SELECT COUNT(s.id) FROM servers AS s WHERE s.city_id = c.id AND s.is_active = ? AND s.is_included_in_plan = ? AND s.is_banned = ?)", true, true, false)
