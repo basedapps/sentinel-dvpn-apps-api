@@ -148,6 +148,11 @@ func (job SyncNodesWithSentinelJob) fetchActiveNodes() (*[]sentinel.SentinelNode
 		}
 
 		offset += limit
+
+		// Hard limit on amount of nodes on the app
+		if len(nodes) >= 500 {
+			syncInProgress = false
+		}
 	}
 
 	return &nodes, nil
