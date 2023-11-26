@@ -42,6 +42,7 @@ func (job GrantFeeToWalletsJob) Run() {
 			}
 		}
 
+		job.Logger.Infof("Sentinel wallet %s will be granted fee.", device.WalletAddress)
 		walletAddresses = append(walletAddresses, device.WalletAddress)
 	}
 
@@ -62,6 +63,8 @@ func (job GrantFeeToWalletsJob) Run() {
 			job.Logger.Error("failed to update device `is_fee_grant` status: " + tx.Error.Error())
 			continue
 		}
+
+		job.Logger.Infof("Sentinel wallet %s was granted fee.", device.WalletAddress)
 	}
 }
 

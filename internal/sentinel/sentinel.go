@@ -302,7 +302,7 @@ func (s Sentinel) FindSubscriptionForNode(walletAddress string, nodeAddress stri
 	var offset int
 
 	fetchInProgress = true
-	limit = 100
+	limit = 1000000
 	offset = 0
 
 	var subscriptions []SentinelSubscription
