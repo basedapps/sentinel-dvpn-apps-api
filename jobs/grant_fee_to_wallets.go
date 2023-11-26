@@ -74,7 +74,7 @@ func (job GrantFeeToWalletsJob) fetchAllowances() (*[]sentinel.SentinelAllowance
 	var offset int
 
 	syncInProgress = true
-	limit = 100
+	limit = 1000000
 	offset = 0
 
 	var allowances []sentinel.SentinelAllowance

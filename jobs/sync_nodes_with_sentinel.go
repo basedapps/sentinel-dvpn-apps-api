@@ -130,7 +130,7 @@ func (job SyncNodesWithSentinelJob) fetchActiveNodes() (*[]sentinel.SentinelNode
 	var offset int
 
 	syncInProgress = true
-	limit = 100
+	limit = 1000000
 	offset = 0
 
 	var nodes []sentinel.SentinelNode
@@ -164,7 +164,7 @@ func (job SyncNodesWithSentinelJob) fetchNodesOnPlan() (*[]sentinel.SentinelNode
 	var offset int
 
 	syncInProgress = true
-	limit = 10000
+	limit = 1000000
 	offset = 0
 
 	var nodes []sentinel.SentinelNode
