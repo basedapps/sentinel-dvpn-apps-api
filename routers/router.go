@@ -25,6 +25,7 @@ func (r Router) RegisterRoutes(router gin.IRouter) {
 	// Anonymous requests
 	//
 	router.GET("/health", r.HealthController.Status)
+	router.GET("/versions", r.HealthController.GetSupportedAppVersions)
 	router.POST("/device", r.DevicesController.CreateDevice)
 
 	//
