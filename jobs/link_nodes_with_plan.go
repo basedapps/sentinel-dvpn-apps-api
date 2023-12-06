@@ -17,7 +17,7 @@ type LinkNodesWithPlanJob struct {
 
 func (job LinkNodesWithPlanJob) Run() {
 	var servers []models.Server
-	tx := job.DB.Model(&models.Server{}).Order("created_at").Limit(10).Find(&servers, "is_included_in_plan = ? AND is_banned = ? AND is_active = ?", false, false, true)
+	tx := job.DB.Model(&models.Server{}).Order("created_at").Limit(5).Find(&servers, "is_included_in_plan = ? AND is_banned = ? AND is_active = ?", false, false, true)
 	if tx.Error != nil {
 		job.Logger.Error("failed to get sentinel servers from the DB: " + tx.Error.Error())
 		return

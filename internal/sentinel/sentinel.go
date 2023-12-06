@@ -10,7 +10,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 )
@@ -1081,30 +1080,38 @@ func (s Sentinel) CreatePlanSubscription() (*SentinelSubscription, error) {
 	return nil, errors.New("No subscription ID found in events returned from Sentinel API during creation of subscription for plan " + s.ProviderPlanID + " (response: " + string(body) + ")")
 }
 
-func (s Sentinel) CheckIfNodeIsResponding(node SentinelNode) bool {
-	url := fmt.Sprintf("%s/accounts/"+s.ProviderWalletAddress+"/sessions/1", node.RemoteURL)
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+func (s Sentinel) FetchHealthChecks() (*[]SentinelHealthCheck, error) {
+	type blockchainResponse struct {
+		Success bool                   `json:"success"`
+		Result  *[]SentinelHealthCheck `json:"result"`
 	}
 
-	client := &http.Client{
-		Transport: transport,
-		Timeout:   4 * time.Second,
-	}
+	req, _ := http.NewRequest("GET", "https://api.health.sentinel.co/v1/records/", nil)
 
-	payload, err := json.Marshal(struct{}{})
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return false
+		return nil, err
 	}
 
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
-
-	_, err = client.Do(req)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		if os.IsTimeout(err) {
-			return false
-		}
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var response *blockchainResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
 	}
 
-	return true
+	if response.Success == false {
+		return nil, errors.New("success `false` returned from Health API when fetching checks")
+	}
+
+	if response.Result == nil {
+		return nil, errors.New("`nil` returned from Health API when fetching checks")
+	}
+
+	return response.Result, nil
 }

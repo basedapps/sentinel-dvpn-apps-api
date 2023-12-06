@@ -27,6 +27,12 @@ func (job SyncNodesWithSentinelJob) Run() {
 		return
 	}
 
+	healthChecks, err := job.Sentinel.FetchHealthChecks()
+	if err != nil {
+		job.Logger.Errorw("failed to fetch health checks from Health API", "error", err)
+		return
+	}
+
 	job.Logger.Infof("fetching nodes listed on plan from Sentinel")
 	job.planNodes, err = job.fetchNodesOnPlan()
 	if err != nil {
@@ -35,18 +41,28 @@ func (job SyncNodesWithSentinelJob) Run() {
 	}
 
 	job.Logger.Infof("processing %d nodes", len(*nodes))
-	job.processNodes(nodes)
+	job.processNodes(nodes, healthChecks)
 }
 
-func (job SyncNodesWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode) {
+func (job SyncNodesWithSentinelJob) processNodes(nodes *[]sentinel.SentinelNode, healthChecks *[]sentinel.SentinelHealthCheck) {
 	revision := time.Now().Unix()
 
 	for _, node := range *nodes {
 		job.Logger.Infof("requesting status for node %s", node.Address)
 
-		isNodeResponding := job.Sentinel.CheckIfNodeIsResponding(node)
-		if isNodeResponding == false {
-			job.Logger.Warnf("Sentinel node %s is failing to respond to healthcheck request. It will be marked inactive after sync.", node.Address)
+		isNodeHealthy := false
+		for _, healthCheck := range *healthChecks {
+			if healthCheck.Address == node.Address {
+				if healthCheck.LocationFetchError == "" && healthCheck.ConfigExchangeError == "" && healthCheck.InfoFetchError == "" {
+					if healthCheck.ConfigExchangeTimestamp != (time.Time{}) && healthCheck.InfoFetchTimestamp != (time.Time{}) && healthCheck.LocationFetchTimestamp != (time.Time{}) {
+						isNodeHealthy = true
+					}
+				}
+			}
+		}
+
+		if isNodeHealthy == false {
+			job.Logger.Warnf("Sentinel node %s is not healthy. It will be marked inactive after sync.", node.Address)
 			continue
 		}
 

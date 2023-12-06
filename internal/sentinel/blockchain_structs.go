@@ -208,3 +208,18 @@ func (sa SentinelAllowance) DTO() SentinelAllowanceDTO {
 		Granter: sa.Granter,
 	}
 }
+
+type SentinelHealthCheck struct {
+	Address string `json:"addr"`
+
+	ConfigExchangeTimestamp time.Time `json:"config_exchange_timestamp"`
+	ConfigExchangeError     string    `json:"config_exchange_error"`
+
+	InfoFetchTimestamp time.Time `json:"info_fetch_timestamp"`
+	InfoFetchError     string    `json:"info_fetch_error"`
+
+	LocationFetchTimestamp time.Time `json:"location_fetch_timestamp"`
+	LocationFetchError     string    `json:"location_fetch_error"`
+
+	Status int64 `json:"status"`
+}
