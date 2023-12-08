@@ -390,7 +390,7 @@ func (vc VPNController) createCredentials(device *models.Device, server *models.
 
 	tStart := time.Now()
 	credentials, err := vc.Sentinel.CreateCredentials(server.Configuration.Data().Address, *device.SubscriptionId, deviceMnemonic, device.WalletAddress)
-	vc.Logger.Infoln(fmt.Sprintf("time took: %d, error: %s", time.Since(tStart), err))
+	vc.Logger.Infoln(fmt.Sprintf("time took: %s, error: %s", time.Since(tStart), err))
 
 	if err != nil {
 		reason := "failed to create sentinel credentials: " + err.Error()
