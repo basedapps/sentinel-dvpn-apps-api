@@ -7,16 +7,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/tyler-smith/go-bip39"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/tyler-smith/go-bip39"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type VPNController struct {
@@ -387,7 +388,10 @@ func (vc VPNController) createCredentials(device *models.Device, server *models.
 		}
 	}
 
+	tStart := time.Now()
 	credentials, err := vc.Sentinel.CreateCredentials(server.Configuration.Data().Address, *device.SubscriptionId, deviceMnemonic, device.WalletAddress)
+	vc.Logger.Infoln(fmt.Sprintf("time took: %d, error: %s", time.Since(tStart), err))
+
 	if err != nil {
 		reason := "failed to create sentinel credentials: " + err.Error()
 		middleware.RespondErr(c, middleware.APIErrorUnknown, reason)

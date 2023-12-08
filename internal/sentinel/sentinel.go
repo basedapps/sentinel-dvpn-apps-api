@@ -579,7 +579,7 @@ func (s Sentinel) CreateCredentials(nodeAddress string, subscriptionID int64, mn
 	if response.Success == false {
 		apiError := ""
 		if response.Error != nil {
-			apiError = " (" + response.Error.Message + ")"
+			apiError = fmt.Sprintf(" (code %d, message %s)", response.Error.Code, response.Error.Message)
 		}
 
 		return nil, errors.New("success `false` returned from Sentinel API during creation of credentials for node " + nodeAddress + " using wallet " + walletAddress + apiError)
